@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { jsPDF } from "jspdf";
@@ -48,6 +48,14 @@ const TIPOS_MOVIMENTACAO = [
 ] as const;
 
 export default function MovimentacoesPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-sm text-slate-500">Carregando movimentações...</div>}>
+      <MovimentacoesContent />
+    </Suspense>
+  );
+}
+
+function MovimentacoesContent() {
   const searchParams = useSearchParams();
   const { showToast } = useToast();
 
@@ -217,7 +225,9 @@ export default function MovimentacoesPage() {
       const situacaoOk = filtroSituacao
         ? funcionario?.situacao === filtroSituacao
         : true;
-      const dataInicialOk = filtroDataInicial ? mov.data >= filtroDataInicial : true;
+      const dataInicialOk = filtroDataInicial
+        ? mov.data >= filtroDataInicial
+        : true;
       const dataFinalOk = filtroDataFinal ? mov.data <= filtroDataFinal : true;
 
       return (
@@ -315,9 +325,7 @@ export default function MovimentacoesPage() {
 
     autoTable(doc, {
       startY: filtrosAplicados.length > 0 ? 40 : 32,
-      head: [
-        ["Funcionário", "Cargo", "Situação", "Tipo", "Descrição", "Data"],
-      ],
+      head: [["Funcionário", "Cargo", "Situação", "Tipo", "Descrição", "Data"]],
       body,
       styles: {
         fontSize: 9,
