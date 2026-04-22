@@ -49,7 +49,13 @@ const TIPOS_MOVIMENTACAO = [
 
 export default function MovimentacoesPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-sm text-slate-500">Carregando movimentações...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-6 text-sm text-slate-500">
+          Carregando movimentações...
+        </div>
+      }
+    >
       <MovimentacoesContent />
     </Suspense>
   );
@@ -358,7 +364,7 @@ function MovimentacoesContent() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <PageHeader
         title="Movimentações"
         description="Registre eventos dos funcionários"
@@ -367,6 +373,7 @@ function MovimentacoesContent() {
             onClick={gerarPDF}
             variant="success"
             icon={<FileText size={16} />}
+            className="w-full sm:w-auto"
           >
             Gerar PDF
           </Button>
@@ -375,7 +382,7 @@ function MovimentacoesContent() {
 
       <SectionCard title="Registrar movimentação">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
             <Select
               label="Funcionário"
               value={funcionarioId}
@@ -428,6 +435,7 @@ function MovimentacoesContent() {
               disabled={loading}
               variant="primary"
               icon={<PlusCircle size={16} />}
+              className="w-full sm:w-auto"
             >
               {loading ? "Salvando..." : "Registrar Movimentação"}
             </Button>
@@ -512,14 +520,14 @@ function MovimentacoesContent() {
             registro(s) encontrado(s)
           </p>
 
-          <Button onClick={limparFiltros} variant="outline">
+          <Button onClick={limparFiltros} variant="outline" className="w-full sm:w-auto">
             Limpar filtros
           </Button>
         </div>
       </SectionCard>
 
       <TableContainer title="Histórico de movimentações">
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto md:block">
           <table className="min-w-full border-collapse">
             <thead>
               <tr className="border-b border-slate-200 text-left text-sm text-slate-500">
@@ -591,8 +599,75 @@ function MovimentacoesContent() {
           </table>
         </div>
 
+        <div className="space-y-4 p-4 md:hidden">
+          {movimentacoesFiltradas.map((mov) => {
+            const funcionario = funcionarios.find(
+              (f) => f.id === mov.funcionario_id
+            );
+
+            return (
+              <div
+                key={mov.id}
+                className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-semibold text-slate-900">
+                      {mov.funcionario_nome || "-"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {funcionario?.cargo || "-"}
+                    </p>
+                  </div>
+
+                  <StatusBadge
+                    tone={badgeTone(mov.tipo)}
+                    className="whitespace-nowrap"
+                  >
+                    {mov.tipo}
+                  </StatusBadge>
+                </div>
+
+                <div className="mt-4 grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                  <InfoItem
+                    label="Situação"
+                    value={funcionario?.situacao || "-"}
+                  />
+                  <InfoItem
+                    label="Data"
+                    value={formatarData(mov.data)}
+                  />
+                </div>
+
+                <div className="mt-3 rounded-xl bg-slate-50 px-3 py-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                    Descrição
+                  </p>
+                  <p className="mt-1 text-sm text-slate-700 break-words">
+                    {mov.descricao || "-"}
+                  </p>
+                </div>
+
+                <div className="mt-4">
+                  <ActionsMenu
+                    actions={[
+                      {
+                        label: "Excluir",
+                        onClick: () => setMovimentacaoParaExcluir(mov),
+                        danger: true,
+                      },
+                    ]}
+                    className="w-full"
+                    align="right"
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         {movimentacoesFiltradas.length === 0 && (
-          <div className="px-6 py-8">
+          <div className="px-4 py-8 sm:px-6">
             <EmptyState
               title="Nenhuma movimentação encontrada"
               description="Ajuste os filtros ou registre uma nova movimentação."
@@ -618,6 +693,25 @@ function MovimentacoesContent() {
           }
         }}
       />
+    </div>
+  );
+}
+
+function InfoItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl bg-slate-50 px-3 py-2">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+        {label}
+      </p>
+      <p className="mt-1 break-words text-sm font-medium text-slate-700">
+        {value}
+      </p>
     </div>
   );
 }

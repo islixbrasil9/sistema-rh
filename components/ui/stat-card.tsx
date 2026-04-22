@@ -45,22 +45,24 @@ export function StatCard({
   tone?: Tone;
 }) {
   return (
-    <Card className={cn("p-6", styles[tone].wrap)}>
+    <Card className={cn("p-4 sm:p-5 lg:p-6", styles[tone].wrap)}>
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <p className="text-sm text-slate-500">{title}</p>
-          <p className="mt-3 text-5xl font-bold tracking-tight text-slate-900">
+
+          <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:mt-3 lg:text-5xl">
             {value}
           </p>
+
           {subtitle ? (
-            <p className="mt-2 text-xs text-slate-500">{subtitle}</p>
+            <p className="mt-1 text-xs text-slate-500 sm:mt-2">{subtitle}</p>
           ) : null}
         </div>
 
         {icon ? (
           <div
             className={cn(
-              "flex h-11 w-11 items-center justify-center rounded-2xl",
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl sm:h-11 sm:w-11",
               styles[tone].icon
             )}
           >

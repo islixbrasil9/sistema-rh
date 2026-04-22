@@ -3,9 +3,13 @@
 import { createClient } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 import { LogoutButton } from "./LogoutButton";
-import { Bell, Search, Sparkles } from "lucide-react";
+import { Bell, Menu, Search, Sparkles } from "lucide-react";
 
-export function Header() {
+type HeaderProps = {
+  onOpenMobileMenu?: () => void;
+};
+
+export function Header({ onOpenMobileMenu }: HeaderProps) {
   const supabase = createClient();
   const [email, setEmail] = useState<string>("");
 
@@ -38,18 +42,27 @@ export function Header() {
 
   return (
     <header className="fixed left-0 right-0 top-0 z-40 lg:left-72">
-      <div className="px-4 pt-4 sm:px-6 lg:px-8">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between rounded-2xl border border-white/60 bg-white/70 px-4 shadow-[0_12px_40px_-18px_rgba(15,23,42,0.35)] backdrop-blur-xl sm:px-6">
-          <div className="flex items-center gap-3">
+      <div className="px-3 pt-3 sm:px-6 sm:pt-4 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between rounded-2xl border border-white/60 bg-white/70 px-3 shadow-[0_12px_40px_-18px_rgba(15,23,42,0.35)] backdrop-blur-xl sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={onOpenMobileMenu}
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/80 text-slate-700 transition hover:bg-slate-50 lg:hidden"
+              aria-label="Abrir menu"
+            >
+              <Menu size={18} />
+            </button>
+
             <div className="hidden h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg sm:flex">
               <Sparkles size={18} />
             </div>
 
-            <div>
-              <p className="text-sm font-semibold text-slate-800">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-800">
                 Sistema de RH
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="hidden text-xs text-slate-500 sm:block">
                 Gestão de pessoas e movimentações
               </p>
             </div>
@@ -69,7 +82,7 @@ export function Header() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
               className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/80 text-slate-600 transition hover:bg-slate-50 sm:flex"
@@ -77,18 +90,20 @@ export function Header() {
               <Bell size={18} />
             </button>
 
-            <div className="hidden text-right sm:block">
+            <div className="hidden text-right md:block">
               <p className="text-xs text-slate-500">Usuário logado</p>
-              <p className="max-w-[220px] truncate text-sm font-medium text-slate-800">
+              <p className="max-w-[180px] truncate text-sm font-medium text-slate-800 lg:max-w-[220px]">
                 {email || "Carregando..."}
               </p>
             </div>
 
-            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-600 text-white shadow-md flex items-center justify-center text-sm font-semibold">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-800 to-slate-600 text-sm font-semibold text-white shadow-md sm:h-11 sm:w-11">
               {email?.[0]?.toUpperCase() || "U"}
             </div>
 
-            <LogoutButton />
+            <div className="shrink-0">
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </div>

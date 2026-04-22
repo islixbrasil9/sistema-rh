@@ -27,6 +27,8 @@ import {
   MoreHorizontal,
   Printer,
   FileSpreadsheet,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -58,6 +60,7 @@ export default function FuncionariosPage() {
   const [camposSelecionados, setCamposSelecionados] = useState<CampoRelatorio[]>(
     ["nome", "setor", "situacao", "admissao"]
   );
+  const [mostrarCampos, setMostrarCampos] = useState(false);
 
   const [funcionarioParaExcluir, setFuncionarioParaExcluir] =
     useState<Funcionario | null>(null);
@@ -312,7 +315,7 @@ export default function FuncionariosPage() {
     switch (campo) {
       case "nome":
         return (
-          <div className="min-w-[280px]">
+          <div className="min-w-[220px]">
             <p className="font-semibold text-slate-900">{funcionario.nome || "-"}</p>
             <p className="mt-1 text-sm text-slate-500">{funcionario.cargo || "-"}</p>
           </div>
@@ -389,7 +392,7 @@ export default function FuncionariosPage() {
           description="Gestão completa do quadro de funcionários"
         />
 
-        <Card className="p-8">
+        <Card className="p-6 sm:p-8">
           <p className="text-sm text-slate-500">Carregando...</p>
         </Card>
       </div>
@@ -397,16 +400,17 @@ export default function FuncionariosPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <PageHeader
         title="Funcionários"
         description="Gestão completa do quadro de funcionários"
         actions={
-          <>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
             <Button
               onClick={handleBaixarPDF}
               variant="success"
               icon={<FileText size={16} />}
+              className="w-full sm:w-auto"
             >
               PDF
             </Button>
@@ -415,6 +419,7 @@ export default function FuncionariosPage() {
               onClick={handleImprimirPDF}
               variant="outline"
               icon={<Printer size={16} />}
+              className="w-full sm:w-auto"
             >
               Imprimir
             </Button>
@@ -422,7 +427,7 @@ export default function FuncionariosPage() {
             <Button
               onClick={handleExportarExcel}
               variant="outline"
-              className="border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+              className="w-full border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 sm:w-auto"
               icon={<FileSpreadsheet size={16} />}
             >
               Excel
@@ -432,14 +437,15 @@ export default function FuncionariosPage() {
               href="/funcionarios/novo"
               variant="primary"
               icon={<PlusCircle size={16} />}
+              className="w-full sm:w-auto"
             >
               + Novo Funcionário
             </Button>
-          </>
+          </div>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5">
         <StatCard
           title="Funcionários"
           value={totais.total}
@@ -467,13 +473,15 @@ export default function FuncionariosPage() {
           icon={<ShieldAlert size={18} />}
           tone="amber"
         />
-        <StatCard
-          title="Inativos"
-          value={totais.inativos}
-          subtitle="Cadastro inativo"
-          icon={<UserX size={18} />}
-          tone="gray"
-        />
+        <div className="col-span-2 xl:col-span-1">
+          <StatCard
+            title="Inativos"
+            value={totais.inativos}
+            subtitle="Cadastro inativo"
+            icon={<UserX size={18} />}
+            tone="gray"
+          />
+        </div>
       </div>
 
       <SectionCard title="Buscar e filtrar funcionários">
@@ -579,6 +587,17 @@ export default function FuncionariosPage() {
         description="Escolha quais colunas deseja exibir no relatório."
         action={
           <div className="flex flex-wrap gap-2">
+            <Button
+              onClick={() => setMostrarCampos((v) => !v)}
+              variant="outline"
+              size="sm"
+              icon={
+                mostrarCampos ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+              }
+            >
+              {mostrarCampos ? "Ocultar" : "Mostrar"}
+            </Button>
+
             <Button onClick={marcarTodosCampos} variant="outline" size="sm">
               Marcar todos
             </Button>
@@ -598,41 +617,45 @@ export default function FuncionariosPage() {
           </div>
         }
       >
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {CAMPOS_RELATORIO.map((campo) => {
-            const selecionado = camposSelecionados.includes(campo.key);
+        {mostrarCampos && (
+          <>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              {CAMPOS_RELATORIO.map((campo) => {
+                const selecionado = camposSelecionados.includes(campo.key);
 
-            return (
-              <label
-                key={campo.key}
-                className={`flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition ${
-                  selecionado
-                    ? "border-slate-900 bg-slate-50 text-slate-900"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={selecionado}
-                  onChange={() => toggleCampo(campo.key)}
-                  className="h-4 w-4 rounded border-gray-300"
-                />
-                <span className="font-medium">{campo.label}</span>
-              </label>
-            );
-          })}
-        </div>
+                return (
+                  <label
+                    key={campo.key}
+                    className={`flex cursor-pointer items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition ${
+                      selecionado
+                        ? "border-slate-900 bg-slate-50 text-slate-900"
+                        : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selecionado}
+                      onChange={() => toggleCampo(campo.key)}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                    <span className="font-medium">{campo.label}</span>
+                  </label>
+                );
+              })}
+            </div>
 
-        <div className="mt-4 text-sm text-slate-500">
-          {camposSelecionados.length} campo(s) selecionado(s)
-        </div>
+            <div className="mt-4 text-sm text-slate-500">
+              {camposSelecionados.length} campo(s) selecionado(s)
+            </div>
+          </>
+        )}
       </SectionCard>
 
       <TableContainer
         title="Lista de funcionários"
         description={`Exibindo ${funcionariosPaginados.length} de ${funcionariosFiltrados.length} funcionário(s)`}
       >
-        <div className="flex flex-col gap-3 border-b border-slate-200 px-6 py-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 border-b border-slate-200 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
           <div className="text-sm text-slate-600">
             Total filtrado:{" "}
             <span className="font-semibold text-slate-900">
@@ -640,7 +663,7 @@ export default function FuncionariosPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-slate-600">
+          <div className="flex items-center justify-between gap-2 text-sm text-slate-600 sm:justify-start">
             <span>Itens por página:</span>
             <select
               value={itensPorPagina}
@@ -654,7 +677,7 @@ export default function FuncionariosPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto md:block">
           <table className="min-w-full border-collapse">
             <thead>
               <tr className="border-b border-slate-200 text-left text-sm text-slate-500">
@@ -717,8 +740,83 @@ export default function FuncionariosPage() {
           </table>
         </div>
 
+        <div className="space-y-4 p-4 md:hidden">
+          {funcionariosPaginados.map((funcionario) => (
+            <div
+              key={funcionario.id}
+              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold text-slate-900">
+                    {funcionario.nome || "-"}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    {funcionario.cargo || "-"}
+                  </p>
+                </div>
+
+                <StatusBadge tone={badgeSituacaoTone(funcionario.situacao)}>
+                  {funcionario.situacao}
+                </StatusBadge>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
+                <InfoItem
+                  label="CPF"
+                  value={formatarCPF(funcionario.cpf)}
+                />
+                <InfoItem
+                  label="Setor"
+                  value={funcionario.setor || "-"}
+                />
+                <InfoItem
+                  label="Admissão"
+                  value={
+                    funcionario.admissao
+                      ? formatarDataBR(normalizarData(funcionario.admissao))
+                      : "-"
+                  }
+                />
+                <InfoItem
+                  label="Telefone"
+                  value={funcionario.telefone || "-"}
+                />
+              </div>
+
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <Button
+                  href={`/funcionarios/${funcionario.id}`}
+                  variant="outline"
+                  size="sm"
+                  icon={<Eye size={14} />}
+                  className="w-full sm:w-auto"
+                >
+                  Ver
+                </Button>
+
+                <Button
+                  href={`/funcionarios/editar/${funcionario.id}`}
+                  variant="outline"
+                  size="sm"
+                  icon={<Pencil size={14} />}
+                  className="w-full sm:w-auto"
+                >
+                  Editar
+                </Button>
+
+                <ActionsMenu
+                  funcionarioId={funcionario.id}
+                  onExcluir={() => setFuncionarioParaExcluir(funcionario)}
+                  fullWidthMobile
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
         {funcionariosPaginados.length === 0 && (
-          <div className="px-6 py-8">
+          <div className="px-4 py-8 sm:px-6">
             <EmptyState
               title="Nenhum funcionário encontrado"
               description="Tente ajustar os filtros aplicados para localizar resultados."
@@ -726,12 +824,12 @@ export default function FuncionariosPage() {
           </div>
         )}
 
-        <div className="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 border-t border-slate-200 px-4 py-4 sm:px-6 md:flex-row md:items-center md:justify-between">
           <div className="text-sm text-slate-500">
             Página {paginaAtual} de {totalPaginas}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => setPaginaAtual((p) => Math.max(1, p - 1))}
               disabled={paginaAtual === 1}
@@ -741,19 +839,21 @@ export default function FuncionariosPage() {
               Anterior
             </Button>
 
-            {paginasVisiveis.map((pagina) => (
-              <button
-                key={pagina}
-                onClick={() => setPaginaAtual(pagina)}
-                className={`rounded-xl px-3 py-2 text-sm transition ${
-                  pagina === paginaAtual
-                    ? "bg-slate-900 text-white"
-                    : "border border-slate-200 text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                {pagina}
-              </button>
-            ))}
+            <div className="flex flex-wrap items-center gap-2">
+              {paginasVisiveis.map((pagina) => (
+                <button
+                  key={pagina}
+                  onClick={() => setPaginaAtual(pagina)}
+                  className={`rounded-xl px-3 py-2 text-sm transition ${
+                    pagina === paginaAtual
+                      ? "bg-slate-900 text-white"
+                      : "border border-slate-200 text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  {pagina}
+                </button>
+              ))}
+            </div>
 
             <Button
               onClick={() =>
@@ -813,12 +913,33 @@ function FiltroRapido({
   );
 }
 
+function InfoItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl bg-slate-50 px-3 py-2">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+        {label}
+      </p>
+      <p className="mt-1 break-words text-sm font-medium text-slate-700">
+        {value}
+      </p>
+    </div>
+  );
+}
+
 function ActionsMenu({
   funcionarioId,
   onExcluir,
+  fullWidthMobile = false,
 }: {
   funcionarioId: string;
   onExcluir: () => void;
+  fullWidthMobile?: boolean;
 }) {
   const [aberto, setAberto] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -835,10 +956,15 @@ function ActionsMenu({
   }, []);
 
   return (
-    <div className="relative" ref={ref}>
+    <div
+      className={`relative ${fullWidthMobile ? "w-full sm:w-auto" : ""}`}
+      ref={ref}
+    >
       <button
         onClick={() => setAberto((v) => !v)}
-        className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2 text-slate-700 transition hover:bg-slate-50"
+        className={`inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2 text-slate-700 transition hover:bg-slate-50 ${
+          fullWidthMobile ? "w-full sm:w-auto" : ""
+        }`}
       >
         <MoreHorizontal size={16} />
       </button>
